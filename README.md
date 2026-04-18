@@ -1,6 +1,6 @@
 # SecurityLibrary
 
-`SecurityLibrary` is a small C++20 matrix library.
+`SecurityLibrary` is a small C++ matrix library.
 
 Right now, the project is centered around one type: `Matrix`. It supports common linear algebra operations (arithmetic, determinant, inverse, LU decomposition, rank) and includes a runnable sample (`test_runner`) that solves a linear system.
 
@@ -28,7 +28,12 @@ security-library/
 
 ## Build and run
 
-This project uses CMake and targets C++20.
+This project uses CMake.
+
+- Configured default in `CMakeLists.txt`: **C++20** (`set(CMAKE_CXX_STANDARD 20)`)
+- Lowest version suggested by current code features: **C++11**
+
+If you want to build with C++11, change `set(CMAKE_CXX_STANDARD 20)` to `set(CMAKE_CXX_STANDARD 11)` in `CMakeLists.txt`.
 
 ### Option 1: Build from terminal with CMake
 
