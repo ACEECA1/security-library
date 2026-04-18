@@ -9,10 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # 1. Define the library
 # Removed test.cpp from here. The library should only contain library source code.
 add_library(SecurityLibrary STATIC
-        library.cpp
         src/Math/matrix.cpp
         include/Math/matrix.hpp
-        library.h
 )
 
 # 2. Tell CMake where to find headers
