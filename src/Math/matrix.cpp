@@ -3,7 +3,6 @@
 #include <cmath>
 #include <stdexcept>
 #include <algorithm>
-#include <limits>
 
 namespace {
 constexpr double EPS = 1e-12;
@@ -135,9 +134,15 @@ bool Matrix::isSquare() const {
 }
 
 bool Matrix::isDiagonal() const {
+    if (rows != columns) return false;
     for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < columns; j++) {
-            if (i != j && !nearZero(matrix[i][j])) {
+        for (size_t j = 0; j < i; j++) {
+            if (!nearZero(matrix[i][j])) {
+                return false;
+            }
+        }
+        for (size_t j = i + 1; j < columns; j++) {
+            if (!nearZero(matrix[i][j])) {
                 return false;
             }
         }
@@ -159,8 +164,9 @@ bool Matrix::isSymmetric() const {
 
 bool Matrix::isZero() const {
     for (size_t i = 0; i < rows; i++) {
+        const auto& row = matrix[i];
         for (size_t j = 0; j < columns; j++) {
-            if (!nearZero(matrix[i][j])) {
+            if (!nearZero(row[j])) {
                 return false;
             }
         }
@@ -304,27 +310,28 @@ Matrix Matrix::solveLinearSystem(const Matrix& A, const Matrix& b) {
     A.luDecomposition(L, U, swapCount);
 
     size_t n = A.getRows();
-    Matrix pb = b;
-
     Matrix y(n, 1);
     for (size_t i = 0; i < n; i++) {
         double sum = 0.0;
+        const auto& Li = L[i];
         for (size_t k = 0; k < i; k++) {
-            sum += L[i][k] * y[k][0];
+            sum += Li[k] * y[k][0];
         }
-        y[i][0] = pb[i][0] - sum;
+        y[i][0] = b[i][0] - sum;
     }
 
     Matrix x(n, 1);
     for (int i = static_cast<int>(n) - 1; i >= 0; i--) {
         double sum = 0.0;
+        const auto& Ui = U[static_cast<size_t>(i)];
         for (size_t k = static_cast<size_t>(i) + 1; k < n; k++) {
-            sum += U[static_cast<size_t>(i)][k] * x[k][0];
+            sum += Ui[k] * x[k][0];
         }
-        if (nearZero(U[static_cast<size_t>(i)][static_cast<size_t>(i)])) {
+        const double pivot = Ui[static_cast<size_t>(i)];
+        if (nearZero(pivot)) {
             throw std::logic_error("The matrix is singular or nearly singular");
         }
-        x[static_cast<size_t>(i)][0] = (y[static_cast<size_t>(i)][0] - sum) / U[static_cast<size_t>(i)][static_cast<size_t>(i)];
+        x[static_cast<size_t>(i)][0] = (y[static_cast<size_t>(i)][0] - sum) / pivot;
     }
 
     return x;
@@ -356,7 +363,7 @@ void Matrix::luDecomposition(Matrix& L, Matrix& U, size_t& swapCount) const {
         throw std::logic_error("Matrix must be square");
     }
 
-    size_t n = rows;
+    const size_t n = rows;
     L = Matrix::identity(n);
     U = *this;
     swapCount = 0;
@@ -381,8 +388,9 @@ void Matrix::luDecomposition(Matrix& L, Matrix& U, size_t& swapCount) const {
             swapCount++;
         }
 
+        const double pivot = U[i][i];
         for (size_t k = i + 1; k < n; k++) {
-            double factor = U[k][i] / U[i][i];
+            const double factor = U[k][i] / pivot;
             L[k][i] = factor;
             for (size_t j = i; j < n; j++) {
                 U[k][j] -= factor * U[i][j];
@@ -399,8 +407,9 @@ size_t Matrix::rank() const {
     size_t r = 0;
     for (size_t i = 0; i < U.getRows(); i++) {
         bool nonZeroRow = false;
+        const auto& row = U[i];
         for (size_t j = 0; j < U.getColumns(); j++) {
-            if (!nearZero(U[i][j])) {
+            if (!nearZero(row[j])) {
                 nonZeroRow = true;
                 break;
             }
@@ -418,8 +427,11 @@ Matrix Matrix::operator+(const Matrix& rhs) const {
     }
     Matrix result(rows, columns);
     for (size_t i = 0; i < rows; i++) {
+        const auto& lhsRow = matrix[i];
+        const auto& rhsRow = rhs.matrix[i];
+        auto& outRow = result.matrix[i];
         for (size_t j = 0; j < columns; j++) {
-            result.matrix[i][j] = matrix[i][j] + rhs.matrix[i][j];
+            outRow[j] = lhsRow[j] + rhsRow[j];
         }
     }
     return result;
@@ -431,8 +443,11 @@ Matrix Matrix::operator-(const Matrix& rhs) const {
     }
     Matrix result(rows, columns);
     for (size_t i = 0; i < rows; i++) {
+        const auto& lhsRow = matrix[i];
+        const auto& rhsRow = rhs.matrix[i];
+        auto& outRow = result.matrix[i];
         for (size_t j = 0; j < columns; j++) {
-            result.matrix[i][j] = matrix[i][j] - rhs.matrix[i][j];
+            outRow[j] = lhsRow[j] - rhsRow[j];
         }
     }
     return result;
@@ -444,9 +459,13 @@ Matrix Matrix::operator*(const Matrix& rhs) const {
     }
     Matrix result(rows, rhs.columns);
     for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < rhs.columns; j++) {
-            for (size_t k = 0; k < rhs.rows; k++) {
-                result.matrix[i][j] += matrix[i][k] * rhs.matrix[k][j];
+        const auto& lhsRow = matrix[i];
+        auto& outRow = result.matrix[i];
+        for (size_t k = 0; k < columns; k++) {
+            const double lhs = lhsRow[k];
+            const auto& rhsRow = rhs.matrix[k];
+            for (size_t j = 0; j < rhs.columns; j++) {
+                outRow[j] += lhs * rhsRow[j];
             }
         }
     }
@@ -467,8 +486,10 @@ Matrix Matrix::operator/(const double& scalar) const {
 Matrix Matrix::operator*(const double& scalar) const {
     Matrix result(rows, columns);
     for (size_t i = 0; i < rows; i++) {
+        const auto& lhsRow = matrix[i];
+        auto& outRow = result.matrix[i];
         for (size_t j = 0; j < columns; j++) {
-            result.matrix[i][j] = scalar * matrix[i][j];
+            outRow[j] = scalar * lhsRow[j];
         }
     }
     return result;
@@ -479,8 +500,10 @@ void Matrix::operator+=(const Matrix& rhs) {
         throw std::length_error("The length of both matrices should be the same");
     }
     for (size_t i = 0; i < rows; i++) {
+        auto& lhsRow = matrix[i];
+        const auto& rhsRow = rhs.matrix[i];
         for (size_t j = 0; j < columns; j++) {
-            matrix[i][j] += rhs.matrix[i][j];
+            lhsRow[j] += rhsRow[j];
         }
     }
 }
@@ -490,8 +513,10 @@ void Matrix::operator-=(const Matrix& rhs) {
         throw std::length_error("The length of both matrices should be the same");
     }
     for (size_t i = 0; i < rows; i++) {
+        auto& lhsRow = matrix[i];
+        const auto& rhsRow = rhs.matrix[i];
         for (size_t j = 0; j < columns; j++) {
-            matrix[i][j] -= rhs.matrix[i][j];
+            lhsRow[j] -= rhsRow[j];
         }
     }
 }
@@ -502,13 +527,17 @@ void Matrix::operator*=(const Matrix& rhs) {
     }
     Matrix result(rows, rhs.columns);
     for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < rhs.columns; j++) {
-            for (size_t k = 0; k < rhs.rows; k++) {
-                result.matrix[i][j] += matrix[i][k] * rhs.matrix[k][j];
+        const auto& lhsRow = matrix[i];
+        auto& outRow = result.matrix[i];
+        for (size_t k = 0; k < columns; k++) {
+            const double lhs = lhsRow[k];
+            const auto& rhsRow = rhs.matrix[k];
+            for (size_t j = 0; j < rhs.columns; j++) {
+                outRow[j] += lhs * rhsRow[j];
             }
         }
     }
-    *this = result;
+    *this = std::move(result);
 }
 
 void Matrix::operator/=(const double& scalar) {
@@ -520,8 +549,9 @@ void Matrix::operator/=(const double& scalar) {
 
 void Matrix::operator*=(const double& scalar) {
     for (size_t i = 0; i < rows; i++) {
+        auto& lhsRow = matrix[i];
         for (size_t j = 0; j < columns; j++) {
-            matrix[i][j] *= scalar;
+            lhsRow[j] *= scalar;
         }
     }
 }
@@ -531,8 +561,10 @@ bool Matrix::operator==(const Matrix& rhs) const {
         return false;
     }
     for (size_t i = 0; i < rows; i++) {
+        const auto& lhsRow = matrix[i];
+        const auto& rhsRow = rhs.matrix[i];
         for (size_t j = 0; j < columns; j++) {
-            if (std::abs(matrix[i][j] - rhs.matrix[i][j]) > EPS) {
+            if (std::abs(lhsRow[j] - rhsRow[j]) > EPS) {
                 return false;
             }
         }
@@ -562,8 +594,9 @@ std::string Matrix::toString() const {
     std::string result;
     for (size_t i = 0; i < rows; i++) {
         result += " | ";
+        const auto& row = matrix[i];
         for (size_t j = 0; j < columns; j++) {
-            result += std::to_string(matrix[i][j]);
+            result += std::to_string(row[j]);
             result += " | ";
         }
         result += "\n";
@@ -575,8 +608,9 @@ std::ostream& operator<<(std::ostream& os, const Matrix& m) {
     os << "Matrix (" << m.rows << "x" << m.columns << "):\n";
     for (size_t i = 0; i < m.rows; i++) {
         os << " | ";
+        const auto& row = m.matrix[i];
         for (size_t j = 0; j < m.columns; j++) {
-            os << m.matrix[i][j] << " | ";
+            os << row[j] << " | ";
         }
         os << "\n";
     }

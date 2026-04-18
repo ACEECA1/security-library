@@ -26,20 +26,20 @@ public:
 
     /**
      * @brief Copy-constructs a matrix.
-     * @param original Matrix to copy.
+     * @param original The Matrix to copy.
      */
     Matrix(const Matrix& original);
 
     /**
-     * @brief Constructs a matrix with the given size and fills it with a value.
+     * @brief Constructs a matrix with the given size and fills it with a specific value.
      * @param rows Number of rows.
      * @param columns Number of columns.
-     * @param value Fill value.
+     * @param value The value to fill all elements with.
      */
     explicit Matrix(size_t rows, size_t columns, double value);
 
     /**
-     * @brief Constructs a rows x columns matrix filled with zeroes.
+     * @brief Constructs a matrix with the given size filled with zeroes.
      * @param rows Number of rows.
      * @param columns Number of columns.
      */
@@ -47,303 +47,356 @@ public:
 
     /**
      * @brief Constructs a matrix from a 2D vector.
-     * @param matrix Input values.
+     * @param matrix Input 2D vector containing matrix values.
      * @throws std::invalid_argument if rows have inconsistent lengths.
      */
     explicit Matrix(const std::vector<std::vector<double>>& matrix);
 
     /**
      * @brief Constructs a matrix from nested initializer lists.
-     * @param list Input values.
+     * @param list Nested initializer lists representing rows and columns.
      * @throws std::invalid_argument if rows have inconsistent lengths.
      */
     Matrix(std::initializer_list<std::initializer_list<double>> list);
 
     /**
-     * @brief Returns the value at the given position.
+     * @brief Retrieves the value at a specific row and column.
      * @param i Row index.
      * @param j Column index.
-     * @return Value at (i, j).
-     * @throws std::out_of_range if indices are invalid.
+     * @return The double value at the specified position.
+     * @throws std::out_of_range if indices are out of bounds.
      */
     double get(size_t i, size_t j) const;
 
     /**
-     * @brief Sets the value at the given position.
+     * @brief Sets the value at a specific row and column.
      * @param i Row index.
      * @param j Column index.
-     * @param value New value.
-     * @throws std::out_of_range if indices are invalid.
+     * @param value The value to set.
+     * @throws std::out_of_range if indices are out of bounds.
      */
     void set(size_t i, size_t j, double value);
 
     /**
-     * @brief Returns the number of rows.
+     * @brief Gets the number of rows in the matrix.
+     * @return The number of rows.
      */
     size_t getRows() const;
 
     /**
-     * @brief Returns the number of columns.
+     * @brief Gets the number of columns in the matrix.
+     * @return The number of columns.
      */
     size_t getColumns() const;
 
     /**
-     * @brief Replaces a row.
-     * @param row Replacement row.
-     * @param i Row index.
-     * @throws std::out_of_range if row index is invalid.
-     * @throws std::length_error if row length is incorrect.
+     * @brief Replaces an entire row with a new vector of values.
+     * @param row A vector containing the new row values.
+     * @param i The index of the row to replace.
+     * @throws std::out_of_range if the index is out of bounds.
+     * @throws std::length_error if the row length does not match the column count.
      */
     void setRow(const std::vector<double>& row, size_t i);
 
     /**
-     * @brief Replaces a column.
-     * @param column Replacement column.
-     * @param j Column index.
-     * @throws std::out_of_range if column index is invalid.
-     * @throws std::length_error if column length is incorrect.
+     * @brief Replaces an entire column with a new vector of values.
+     * @param column A vector containing the new column values.
+     * @param j The index of the column to replace.
+     * @throws std::out_of_range if the index is out of bounds.
+     * @throws std::length_error if the column length does not match the row count.
      */
     void setColumn(const std::vector<double>& column, size_t j);
 
     /**
-     * @brief Swaps two rows.
-     * @param i First row index.
-     * @param j Second row index.
-     * @throws std::out_of_range if either index is invalid.
+     * @brief Swaps two rows within the matrix.
+     * @param i Index of the first row.
+     * @param j Index of the second row.
+     * @throws std::out_of_range if indices are out of bounds.
      */
     void swapRow(size_t i, size_t j);
 
     /**
-     * @brief Swaps two columns.
-     * @param i First column index.
-     * @param j Second column index.
-     * @throws std::out_of_range if either index is invalid.
+     * @brief Swaps two columns within the matrix.
+     * @param i Index of the first column.
+     * @param j Index of the second column.
+     * @throws std::out_of_range if indices are out of bounds.
      */
     void swapColumn(size_t i, size_t j);
 
     /**
-     * @brief Transposes the matrix in place.
+     * @brief Transposes the matrix in place (swaps rows and columns).
      */
     void transpose();
 
     /**
-     * @brief Returns whether the matrix is square.
+     * @brief Checks if the matrix is square (rows == columns).
+     * @return True if square, false otherwise.
      */
     bool isSquare() const;
 
     /**
-     * @brief Returns whether the matrix is diagonal.
+     * @brief Checks if the matrix is a diagonal matrix.
+     * @return True if all non-diagonal elements are close to zero, false otherwise.
      */
     bool isDiagonal() const;
 
     /**
-     * @brief Returns whether the matrix is symmetric.
+     * @brief Checks if the matrix is symmetric (equals its transpose).
+     * @return True if symmetric, false otherwise.
      */
     bool isSymmetric() const;
 
     /**
-     * @brief Returns whether the matrix is all zeros.
+     * @brief Checks if all elements in the matrix are zero.
+     * @return True if all elements are close to zero, false otherwise.
      */
     bool isZero() const;
 
     /**
-     * @brief Returns the determinant of the matrix.
-     * @throws std::logic_error if the matrix is not square.
+     * @brief Calculates the determinant of the matrix.
+     * @return The determinant value.
      */
     double determinant() const;
 
     /**
-     * @brief Returns the inverse matrix.
-     * @throws std::logic_error if the matrix is not invertible.
+     * @brief Computes and returns the inverse of the matrix.
+     * @return A new Matrix representing the inverse.
+     * @throws std::logic_error if the matrix is not square or is singular (non-invertible).
      */
     Matrix getInverse() const;
 
     /**
-     * @brief Returns the cofactor matrix.
+     * @brief Computes and returns the cofactor matrix.
+     * @return A new Matrix representing the cofactor matrix.
      * @throws std::logic_error if the matrix is not square.
      */
     Matrix getCofactor() const;
 
     /**
-     * @brief Replaces this matrix with its inverse.
-     * @throws std::logic_error if the matrix is not invertible.
+     * @brief Inverts the matrix in place.
+     * @throws std::logic_error if the matrix is not square or is singular.
      */
     void invert();
 
     /**
-     * @brief Returns the trace of a square matrix.
+     * @brief Calculates the trace of the matrix (sum of main diagonal elements).
+     * @return The trace value.
      * @throws std::logic_error if the matrix is not square.
      */
     double trace() const;
 
     /**
-     * @brief Returns a deep copy of the matrix.
+     * @brief Creates and returns a deep copy of the matrix.
+     * @return A copy of the current matrix.
      */
     Matrix copy() const;
 
     /**
-     * @brief Returns an identity matrix of size n.
-     * @param n Matrix size.
+     * @brief Generates an identity matrix of size n x n.
+     * @param n The size (rows and columns) of the identity matrix.
+     * @return An n x n identity Matrix.
      */
     static Matrix identity(size_t n);
 
     /**
-     * @brief Computes the determinant using the older recursive method.
-     * @param m Input matrix.
+     * @brief Calculates the determinant using the older Laplace expansion method.
+     * @param m The matrix to evaluate.
+     * @return The determinant value.
      * @throws std::out_of_range if the matrix is not square.
      */
     static double determinantOld(const Matrix& m);
 
     /**
-     * @brief Computes the determinant using the LU-based implementation.
-     * @param m Input matrix.
+     * @brief Static helper to calculate the determinant using LU decomposition.
+     * @param m The matrix to evaluate.
+     * @return The determinant value.
      */
     static double determinant(const Matrix& m);
 
     /**
-     * @brief Returns the estimated rank of the matrix.
+     * @brief Estimates the rank of the matrix via LU decomposition.
+     * @return The estimated rank (number of linearly independent rows).
      */
     size_t rank() const;
 
     /**
-     * @brief Returns the matrix with one row and one column removed.
-     * @param m Source matrix.
-     * @param row Row to remove.
-     * @param col Column to remove.
-     * @throws std::out_of_range if row or column is invalid.
-     * @throws std::logic_error if matrix is too small.
+     * @brief Creates a submatrix by removing a specific row and column.
+     * @param m The original matrix.
+     * @param row The index of the row to remove.
+     * @param col The index of the column to remove.
+     * @return A new smaller Matrix.
+     * @throws std::logic_error if the matrix is smaller than 2x2.
+     * @throws std::out_of_range if row or col indices are invalid.
      */
     static Matrix chop(const Matrix& m, size_t row, size_t col);
 
     /**
-     * @brief Solves a linear system A x = b.
-     * @param A Coefficient matrix.
-     * @param b Right-hand side column vector.
-     * @return Solution vector.
-     * @throws std::logic_error if dimensions are invalid or matrix is singular.
+     * @brief Solves a linear system of equations Ax = b.
+     * @param A The coefficient matrix (must be square).
+     * @param b The constants column vector.
+     * @return A column vector matrix x representing the solution.
+     * @throws std::logic_error on dimension mismatch or if A is singular.
      */
     static Matrix solveLinearSystem(const Matrix& A, const Matrix& b);
 
     /**
-     * @brief Returns the determinant computed via LU decomposition.
+     * @brief Calculates the determinant using LU decomposition internally.
+     * @return The determinant value.
+     * @throws std::logic_error if the matrix is not square.
      */
     double determinantLU() const;
 
     /**
-     * @brief Performs LU decomposition with partial pivoting.
-     * @param L Lower triangular matrix output.
-     * @param U Upper triangular matrix output.
-     * @param swapCount Number of row swaps performed.
-     * @throws std::logic_error if the matrix is not square or singular.
+     * @brief Performs LU decomposition (A = LU) and tracks row swaps.
+     * @param L The matrix to store the Lower triangular result.
+     * @param U The matrix to store the Upper triangular result.
+     * @param swapCount Reference to a counter for row swaps (used for determinant sign).
+     * @throws std::logic_error if the matrix is not square or is singular.
      */
     void luDecomposition(Matrix& L, Matrix& U, size_t& swapCount) const;
 
     /**
-     * @brief Performs LU decomposition with partial pivoting.
-     * @param L Lower triangular matrix output.
-     * @param U Upper triangular matrix output.
-     * @throws std::logic_error if the matrix is not square or singular.
+     * @brief Performs LU decomposition (A = LU) without tracking row swaps.
+     * @param L The matrix to store the Lower triangular result.
+     * @param U The matrix to store the Upper triangular result.
+     * @throws std::logic_error if the matrix is not square or is singular.
      */
     void luDecomposition(Matrix& L, Matrix& U) const;
 
-    // Operator Overloading :
-
     /**
-     * @brief Adds two matrices.
+     * @brief Adds another matrix to this one.
+     * @param rhs The matrix to add.
+     * @return A new Matrix containing the sum.
+     * @throws std::length_error if matrix dimensions do not match.
      */
     Matrix operator+(const Matrix& rhs) const;
 
     /**
-     * @brief Subtracts two matrices.
+     * @brief Subtracts another matrix from this one.
+     * @param rhs The matrix to subtract.
+     * @return A new Matrix containing the difference.
+     * @throws std::length_error if matrix dimensions do not match.
      */
     Matrix operator-(const Matrix& rhs) const;
 
     /**
-     * @brief Multiplies two matrices.
+     * @brief Multiplies this matrix by another matrix.
+     * @param rhs The matrix to multiply by.
+     * @return A new Matrix containing the product.
+     * @throws std::length_error if columns of LHS do not match rows of RHS.
      */
     Matrix operator*(const Matrix& rhs) const;
 
     /**
-     * @brief Divides by another matrix by multiplying with its inverse.
+     * @brief Multiplies this matrix by the inverse of another matrix (A * B^-1).
+     * @param rhs The matrix to divide by.
+     * @return A new Matrix containing the result.
      */
     Matrix operator/(const Matrix& rhs) const;
 
     /**
-     * @brief Divides by a scalar.
-     * @throws std::domain_error if scalar is zero.
+     * @brief Divides all elements in the matrix by a scalar.
+     * @param scalar The scalar value to divide by.
+     * @return A new Matrix with scaled elements.
+     * @throws std::domain_error if the scalar is zero.
      */
     Matrix operator/(const double& scalar) const;
 
     /**
-     * @brief Multiplies by a scalar.
+     * @brief Multiplies all elements in the matrix by a scalar.
+     * @param scalar The scalar value to multiply by.
+     * @return A new Matrix with scaled elements.
      */
     Matrix operator*(const double& scalar) const;
 
     /**
-     * @brief Adds another matrix in place.
+     * @brief Adds another matrix to this matrix in-place.
+     * @param rhs The matrix to add.
+     * @throws std::length_error if matrix dimensions do not match.
      */
     void operator+=(const Matrix& rhs);
 
     /**
-     * @brief Subtracts another matrix in place.
+     * @brief Subtracts another matrix from this matrix in-place.
+     * @param rhs The matrix to subtract.
+     * @throws std::length_error if matrix dimensions do not match.
      */
     void operator-=(const Matrix& rhs);
 
     /**
-     * @brief Multiplies by another matrix in place.
+     * @brief Multiplies this matrix by another matrix in-place.
+     * @param rhs The matrix to multiply by.
+     * @throws std::length_error if columns of LHS do not match rows of RHS.
      */
     void operator*=(const Matrix& rhs);
 
     /**
-     * @brief Divides by a scalar in place.
-     * @throws std::domain_error if scalar is zero.
+     * @brief Divides all elements in this matrix by a scalar in-place.
+     * @param scalar The scalar value to divide by.
+     * @throws std::domain_error if the scalar is zero.
      */
     void operator/=(const double& scalar);
 
     /**
-     * @brief Multiplies by a scalar in place.
+     * @brief Multiplies all elements in this matrix by a scalar in-place.
+     * @param scalar The scalar value to multiply by.
      */
     void operator*=(const double& scalar);
 
     /**
-     * @brief Compares matrices with floating-point tolerance.
+     * @brief Checks if two matrices are equal (within epsilon bounds).
+     * @param rhs The matrix to compare against.
+     * @return True if dimensions and all elements match, false otherwise.
      */
     bool operator==(const Matrix& rhs) const;
 
     /**
-     * @brief Returns the negation of operator==.
+     * @brief Checks if two matrices are not equal.
+     * @param rhs The matrix to compare against.
+     * @return True if dimensions or any elements differ, false otherwise.
      */
     bool operator!=(const Matrix& rhs) const;
 
     /**
-     * @brief Returns a mutable row reference.
-     * @throws std::out_of_range if the row index is invalid.
+     * @brief Accesses a specific row in the matrix (mutable).
+     * @param i The row index.
+     * @return A reference to the vector representing the row.
+     * @throws std::out_of_range if the index is out of bounds.
      */
     std::vector<double>& operator[](size_t i);
 
     /**
-     * @brief Returns a const row reference.
-     * @throws std::out_of_range if the row index is invalid.
+     * @brief Accesses a specific row in the matrix (read-only).
+     * @param i The row index.
+     * @return A const reference to the vector representing the row.
+     * @throws std::out_of_range if the index is out of bounds.
      */
     const std::vector<double>& operator[](size_t i) const;
 
     /**
      * @brief Returns a formatted string representation of the matrix.
+     * @return A multi-line string showing the matrix grid.
      */
     std::string toString() const;
 
     /**
-     * @brief Streams a formatted matrix to an output stream.
+     * @brief Stream insertion operator to print the matrix formatting.
+     * @param os The output stream.
+     * @param m The matrix to print.
+     * @return The modified output stream.
      */
     friend std::ostream& operator<<(std::ostream& os, const Matrix& m);
 
     /**
-     * @brief Multiplies a matrix by a scalar.
+     * @brief Multiplies a scalar by a matrix (commutative multiplication).
+     * @param scalar The scalar value.
+     * @param m The matrix.
+     * @return A new Matrix with scaled elements.
      */
     friend Matrix operator*(const double& scalar, const Matrix& m);
 
     /**
-     * @brief Destroys the matrix.
+     * @brief Default destructor.
      */
     ~Matrix() = default;
 };
