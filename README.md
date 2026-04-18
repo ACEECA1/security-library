@@ -1,8 +1,8 @@
 # SecurityLibrary
 
-`SecurityLibrary` is a small C++ matrix library.
+`SecurityLibrary` is a C++ project for security-focused implementations.
 
-Right now, the project is centered around one type: `Matrix`. It supports common linear algebra operations (arithmetic, determinant, inverse, LU decomposition, rank) and includes a runnable sample (`test_runner`) that solves a linear system.
+The first implemented feature is the `Matrix` class. It provides the math foundation for later security modules and currently includes arithmetic, determinant/inverse logic, LU decomposition, rank, and linear-system solving through the runnable sample (`test_runner`).
 
 ## What you can do with it
 
@@ -12,6 +12,10 @@ Right now, the project is centered around one type: `Matrix`. It supports common
 - Use arithmetic operators (`+`, `-`, `*`, scalar `*` and `/`, plus in-place variants)
 - Run LU-based operations (`luDecomposition`, `determinantLU`, `rank`)
 - Solve systems like `Ax = b` with `solveLinearSystem`
+
+## What comes next
+
+After the matrix foundation, the next features are planned as real security implementations (for example, cryptography/security-oriented modules built on top of the core math layer).
 
 Public API: `include/Math/matrix.hpp`  
 Implementation: `src/Math/matrix.cpp`
