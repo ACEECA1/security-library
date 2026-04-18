@@ -3,7 +3,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <algorithm>
-
+#include <iomanip>
 namespace {
 constexpr double EPS = 1e-12;
 
@@ -610,7 +610,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix& m) {
         os << " | ";
         const auto& row = m.matrix[i];
         for (size_t j = 0; j < m.columns; j++) {
-            os << row[j] << " | ";
+            os << std::setw(5) << row[j] << " | ";
         }
         os << "\n";
     }

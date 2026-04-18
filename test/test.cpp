@@ -6,6 +6,8 @@ int main() {
     Matrix B = {{9}, {5}, {14}};
     try {
         Matrix x = Matrix::solveLinearSystem(A, B);
+        std::cout << "A:\n" << A << std::endl;
+        std::cout << "B:\n" << B << std::endl;
         std::cout << "Solution x:\n" << x;
     }
     catch (const std::exception& e) {
