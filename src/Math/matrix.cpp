@@ -1,6 +1,5 @@
-#include "../../include/Math/matrix.hpp"
+#include <Math/matrix.hpp>
 #include <string>
-#include <cmath>
 #include <stdexcept>
 #include <algorithm>
 #include <iomanip>
