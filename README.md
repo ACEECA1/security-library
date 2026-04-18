@@ -63,6 +63,12 @@ Set-Location .\cmake-build-debug
 
 `test/test.cpp` shows a simple `Ax = b` solve:
 
+`3x + 2y + 1z = 9`
+
+`x + 0y + 2z = 5` 
+
+`4x + 1y + 3z = 14` 
+
 ```cpp
 #include <iostream>
 #include "../include/Math/matrix.hpp"
@@ -75,3 +81,11 @@ int main() {
     std::cout << "Solution x:\n" << x;
 }
 ```
+
+```Output: 
+Solution x:
+Matrix (3x1):
+ |  -8.8 |
+ |    10 |
+ |  11.4 |
+ ```
