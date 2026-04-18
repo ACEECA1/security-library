@@ -1,5 +1,6 @@
 #include <Math/matrix.hpp>
 #include <string>
+#include <cmath>
 #include <stdexcept>
 #include <algorithm>
 #include <iomanip>
@@ -304,19 +305,35 @@ Matrix Matrix::solveLinearSystem(const Matrix& A, const Matrix& b) {
         throw std::logic_error("Right-hand side must be a column vector");
     }
 
-    Matrix L, U;
-    size_t swapCount = 0;
-    A.luDecomposition(L, U, swapCount);
+    const size_t n = A.getRows();
+    Matrix U = A.copy();
+    Matrix rhs = b.copy();
 
-    size_t n = A.getRows();
-    Matrix y(n, 1);
     for (size_t i = 0; i < n; i++) {
-        double sum = 0.0;
-        const auto& Li = L[i];
-        for (size_t k = 0; k < i; k++) {
-            sum += Li[k] * y[k][0];
+        size_t maxRow = i;
+        for (size_t k = i + 1; k < n; k++) {
+            if (std::abs(U[k][i]) > std::abs(U[maxRow][i])) {
+                maxRow = k;
+            }
         }
-        y[i][0] = b[i][0] - sum;
+
+        if (nearZero(U[maxRow][i])) {
+            throw std::logic_error("The matrix is singular or nearly singular");
+        }
+
+        if (maxRow != i) {
+            U.swapRow(i, maxRow);
+            rhs.swapRow(i, maxRow);
+        }
+
+        const double pivot = U[i][i];
+        for (size_t k = i + 1; k < n; k++) {
+            const double factor = U[k][i] / pivot;
+            for (size_t j = i; j < n; j++) {
+                U[k][j] -= factor * U[i][j];
+            }
+            rhs[k][0] -= factor * rhs[i][0];
+        }
     }
 
     Matrix x(n, 1);
@@ -330,7 +347,7 @@ Matrix Matrix::solveLinearSystem(const Matrix& A, const Matrix& b) {
         if (nearZero(pivot)) {
             throw std::logic_error("The matrix is singular or nearly singular");
         }
-        x[static_cast<size_t>(i)][0] = (y[static_cast<size_t>(i)][0] - sum) / pivot;
+        x[static_cast<size_t>(i)][0] = (rhs[static_cast<size_t>(i)][0] - sum) / pivot;
     }
 
     return x;
@@ -341,12 +358,42 @@ double Matrix::determinantLU() const {
         throw std::logic_error("Matrix must be square");
     }
 
-    Matrix L, U;
+    if (rows == 0) {
+        return 1.0;
+    }
+
+    Matrix U = *this;
     size_t swapCount = 0;
-    this->luDecomposition(L, U, swapCount);
+    const size_t n = rows;
+
+    for (size_t i = 0; i < n; i++) {
+        size_t maxRow = i;
+        for (size_t k = i + 1; k < n; k++) {
+            if (std::abs(U[k][i]) > std::abs(U[maxRow][i])) {
+                maxRow = k;
+            }
+        }
+
+        if (nearZero(U[maxRow][i])) {
+            return 0.0;
+        }
+
+        if (maxRow != i) {
+            U.swapRow(i, maxRow);
+            swapCount++;
+        }
+
+        const double pivot = U[i][i];
+        for (size_t k = i + 1; k < n; k++) {
+            const double factor = U[k][i] / pivot;
+            for (size_t j = i; j < n; j++) {
+                U[k][j] -= factor * U[i][j];
+            }
+        }
+    }
 
     double det = (swapCount % 2 == 0) ? 1.0 : -1.0;
-    for (size_t i = 0; i < rows; i++) {
+    for (size_t i = 0; i < n; i++) {
         det *= U[i][i];
     }
     return det;
@@ -368,21 +415,24 @@ void Matrix::luDecomposition(Matrix& L, Matrix& U, size_t& swapCount) const {
     swapCount = 0;
 
     for (size_t i = 0; i < n; i++) {
-        size_t maxRow = i;
-        for (size_t k = i + 1; k < n; k++) {
-            if (std::abs(U[k][i]) > std::abs(U[maxRow][i])) {
-                maxRow = k;
+        if (nearZero(U[i][i])) {
+            size_t swapRowIndex = i;
+            bool found = false;
+            for (size_t k = i + 1; k < n; k++) {
+                if (!nearZero(U[k][i])) {
+                    swapRowIndex = k;
+                    found = true;
+                    break;
+                }
             }
-        }
 
-        if (nearZero(U[maxRow][i])) {
-            throw std::logic_error("Matrix is singular");
-        }
+            if (!found) {
+                throw std::logic_error("Matrix is singular");
+            }
 
-        if (maxRow != i) {
-            U.swapRow(i, maxRow);
+            U.swapRow(i, swapRowIndex);
             for (size_t col = 0; col < i; col++) {
-                std::swap(L[i][col], L[maxRow][col]);
+                std::swap(L[i][col], L[swapRowIndex][col]);
             }
             swapCount++;
         }
